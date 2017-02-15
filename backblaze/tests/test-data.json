@@ -1,0 +1,60 @@
+{
+	"files": [
+		{
+			"action": "upload",
+			"fileId": "file-1",
+			"fileName": "2017-02-15/file-1.tar.gz"
+		},
+		{
+			"action": "upload",
+			"fileId": "file-2",
+			"fileName": "2017-02-14/file-2.tar.gz"
+		},
+		{
+			"action": "upload",
+			"fileId": "file-3",
+			"fileName": "2017-02-13/file-3.tar.gz"
+		},
+		{
+			"action": "upload",
+			"fileId": "file-4",
+			"fileName": "2017-01-22/file-4.tar.gz"
+		},
+		{
+			"action": "upload",
+			"fileId": "file-5",
+			"fileName": "2017-01-08/file-5.tar.gz"
+		},
+		{
+			"action": "upload",
+			"fileId": "file-6",
+			"fileName": "2016-12-15/file-6.tar.gz"
+		},
+		{
+			"action": "upload",
+			"fileId": "file-7",
+			"fileName": "2016-09-01/file-7.tar.gz"
+		},
+		{
+			"action": "upload",
+			"fileId": "file-should-be-deleted",
+			"fileName": "2016-06-01/file-8.tar.gz"
+		},
+		{
+			"action": "upload",
+			"fileId": "file-should-be-deleted",
+			"fileName": "2016-11-11/file-d.tar.gz"
+		},
+		{
+			"action": "upload",
+			"fileId": "file-should-be-deleted",
+			"fileName": "2016-06-15/file-d.tar.gz"
+		},
+		{
+			"action": "upload",
+			"fileId": "file-should-be-deleted",
+			"fileName": "2016-01-01/file-d.tar.gz"
+		}
+	],
+	"nextFileName": null
+}
