@@ -3,6 +3,7 @@
 # b2 authorize-account <account-id>
 system_name="test-backup"
 source_dir=/Users/arif/tmp/test-backup/source/
+source_db_dir=/Users/arif/tmp/test-backup/source-db/
 backup_dir=/Users/arif/tmp/test-backup/backups/
 bucket_name="gwd-backup-test-backup"
 mail_recipient='arif@sainsmograf.com'
@@ -32,6 +33,27 @@ for target in $source_dir*/ ; do
         exit 1
     fi
 done
+
+# TODO: create tarballs of backup dirs
+for target in $source_db_dir*.sql ; do
+    cd $source_db_dir
+    
+    basename=$(basename $target)
+    echo $basename
+    echo "creating tarball of sql file $basename"
+
+    cd $source_dir
+    tar -czf ${backup_dir}/${basename}.tar.gz $target
+    if [ $? -eq 0 ]
+    then
+        echo "+ ${basename}.tar.gz created"
+    else
+        echo "- Could not create file: ${basename}.tar.gz" >&2
+        # echo "Could not create file: ${basename}.tar.gz" | mail -s "[$system_name] Could not create file: ${basename}.tar.gz" $mail_recipient
+        exit 1
+    fi
+done
+
 
 # upload to b2 bucket
 for backup_file in $backup_dir*tar.gz ; do

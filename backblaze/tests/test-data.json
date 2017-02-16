@@ -37,7 +37,7 @@
 		},
 		{
 			"action": "upload",
-			"fileId": "file-should-be-deleted",
+			"fileId": "file-8",
 			"fileName": "2016-06-01/file-8.tar.gz"
 		},
 		{
