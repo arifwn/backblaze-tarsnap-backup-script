@@ -1,5 +1,5 @@
 
-Backup sites files and database dumps to Backblaze B2 and database dumps to Tarsnap
+Backup sites files and database dumps to Backblaze B2 and database dumps to Tarsnap.
 
 
 Setup
