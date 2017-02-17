@@ -1,2 +1,4 @@
 *.pyc
 *.tar.gz
+.backblaze
+backup-prod*.sh

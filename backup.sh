@@ -1,19 +1,28 @@
 #!/usr/bin/env bash
 
-# b2 authorize-account <account-id>
 system_name="test-backup"
-source_dir=/Users/arif/tmp/test-backup/source/
-source_db_dir=/Users/arif/tmp/test-backup/source-db/
-backup_dir=/Users/arif/tmp/test-backup/backups/
 bucket_name="gwd-backup-test-backup"
-mail_recipient='arif@sainsmograf.com'
-
-b2_command=b2
-py_dir_to_delete='trim-backup-filter.py'
+mail_recipient="arif@sainsmograf.com"
 
 last_dir=`pwd`
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-py_dir_to_delete="${script_dir}/${py_dir_to_delete}"
+
+source_dir=$script_dir/tests/test-backup-dirs/source/ # webfaction: $HOME/webapps/
+source_db_dir=$script_dir/tests/test-backup-dirs/source-db/  # webfaction: $HOME/backup/db-autodump/
+backup_dir=$script_dir/tests/test-backup-dirs/backups/ # webfaction: $HOME/backup/tarballs/
+
+# activate virtualenv
+virtual_env_dir=$script_dir/.backblaze/
+source "${virtual_env_dir}bin/activate"
+
+tar_command="/usr/bin/env tar"
+b2_command="/usr/bin/env b2"
+python_command="/usr/bin/env python"
+mail_command="/usr/bin/env mail"
+delete_filter_script='trim-backup-filter.py'
+
+
+delete_filter_script_path="${script_dir}/${delete_filter_script}"
 
 
 notify_admins () {
@@ -28,6 +37,9 @@ notify_admins () {
 }
 
 
+echo "backup started started: `date`"
+
+
 # create tarballs of all directories under source_dir
 tarballs_counter=0
 for target in $source_dir*/ ; do
@@ -37,7 +49,7 @@ for target in $source_dir*/ ; do
     basename=${PWD##*/}
 
     cd $source_dir
-    tar -czf ${backup_dir}/${basename}.tar.gz $basename
+    $tar_command -czf ${backup_dir}/${basename}.tar.gz $basename
     if [ $? -eq 0 ]
     then
         tarballs_counter=$((tarballs_counter + 1))
@@ -49,7 +61,7 @@ for target in $source_dir*/ ; do
     fi
 done
 
-# TODO: create tarballs of backup dirs
+# create tarballs of backup dirs
 for target in $source_db_dir*.sql ; do
     cd $source_db_dir
     
@@ -58,7 +70,7 @@ for target in $source_db_dir*.sql ; do
     echo "creating tarball of sql file $basename"
 
     cd $source_dir
-    tar -czf ${backup_dir}/${basename}.tar.gz $target
+    $tar_command -czf ${backup_dir}/${basename}.tar.gz $target
     if [ $? -eq 0 ]
     then
         tarballs_counter=$((tarballs_counter + 1))
@@ -118,7 +130,7 @@ fi
 
 # pass it to external python script to determine which backup to delete
 # returns a list of file id
-$py_dir_to_delete $list_of_backups > $list_of_backups_to_delete
+$python_command $delete_filter_script_path $list_of_backups > $list_of_backups_to_delete
 
 if [ $? -eq 0 ]
 then
@@ -157,18 +169,21 @@ echo "${tarballs_counter} tarballs created, ${uploads_counter} tarballs uploaded
 if [ "$tarballs_counter" -eq "0" ]; then
     echo "- no tarball created! sending alert!"
     notify_admins "$mail_recipient" "[$system_name] No tarball created. Possible backup issue!" "No tarball created. Possible backup issue!"
+    exit 1
 fi
 
 # if no file uploaded, raise alert
 if [ "$uploads_counter" -eq "0" ]; then
     echo "- no tarball uploaded! sending alert!"
     notify_admins "$mail_recipient" "[$system_name] No tarball uploaded. Possible backup issue!" "No tarball uploaded. Possible backup issue!"
+    exit 1
 fi
 
 # if uploaded counter is lower than tarball counter
 if [ "$uploads_counter" -lt "$tarballs_counter" ]; then
     echo "- not all tarballs are uploaded!"
     notify_admins "$mail_recipient" "[$system_name] Not all tarballs are uploaded. Possible backup issue!" "Not all tarballs are uploaded. Possible backup issue!"
+    exit 1
 fi
 
 # if too many old backups deleted, raise alert
@@ -176,6 +191,7 @@ ceiling=$((tarballs_counter * 2))
 if [ "$deletes_counter" -gt "$ceiling" ]; then
     echo "- too many old backups deleted!"
     notify_admins "$mail_recipient" "[$system_name] Possible backup issue!" "The number of deleted old backups seems to be larger than usual. Possible backup issue!"
+    exit 1
 fi
 
-echo "backup complete"
+echo "sanity check passed. backup completed at `date`"

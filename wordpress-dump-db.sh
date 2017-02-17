@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-source_dir=/home/donnygrover/webapps/
-backup_dir=/home/donnygrover/backup/db-autodump/
+source_dir=$HOME/webapps/
+backup_dir=$HOME/backup/db-autodump/
 php=/usr/local/bin/php56
-wp_cli=/home/donnygrover/bin/wp
+wp_cli=$HOME/bin/wp
 
 for d in $source_dir*/ ; do
     echo "$d"
