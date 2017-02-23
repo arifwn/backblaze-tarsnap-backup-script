@@ -49,19 +49,19 @@ for target in $source_dir*/ ; do
     basename=${PWD##*/}
 
     cd $source_dir
-    $tar_command -czf ${backup_dir}/${basename}.tar.gz $basename
-    if [ $? -eq 0 ]
-    then
-        tarballs_counter=$((tarballs_counter + 1))
-        echo "+ ${basename}.tar.gz created"
-    else
+    $tar_command --ignore-failed-read -czf ${backup_dir}/${basename}.tar.gz $basename
+
+    exitcode=$?
+    if [ "$exitcode" != "1" ] && [ "$exitcode" != "0" ]; then
         echo "- Could not create file: ${basename}.tar.gz" >&2
         notify_admins "$mail_recipient" "[$system_name] Could not create file: ${basename}.tar.gz" "Could not create file: ${basename}.tar.gz"
         exit 1
     fi
+    tarballs_counter=$((tarballs_counter + 1))
+    echo "+ ${basename}.tar.gz created"
 done
 
-# create tarballs of backup dirs
+# create tarballs of backup sql files
 for target in $source_db_dir*.sql ; do
     cd $source_db_dir
     
@@ -71,15 +71,15 @@ for target in $source_db_dir*.sql ; do
 
     cd $source_dir
     $tar_command -czf ${backup_dir}/${basename}.tar.gz $target
-    if [ $? -eq 0 ]
-    then
-        tarballs_counter=$((tarballs_counter + 1))
-        echo "+ ${basename}.tar.gz created"
-    else
+
+    exitcode=$?
+    if [ "$exitcode" != "1" ] && [ "$exitcode" != "0" ]; then
         echo "- Could not create file: ${basename}.tar.gz" >&2
         notify_admins "$mail_recipient" "[$system_name] Could not create file: ${basename}.tar.gz" "Could not create file: ${basename}.tar.gz"
         exit 1
     fi
+    tarballs_counter=$((tarballs_counter + 1))
+    echo "+ ${basename}.tar.gz created"
 done
 
 
@@ -112,7 +112,7 @@ done
 
 # identify old backups that need to be purged
 
-list_of_backups=`/usr/bin/mktemp`
+list_of_backups=`/usr/bin/mktemp` # /bin/mktemp on webfaction
 list_of_backups_to_delete=`/usr/bin/mktemp`
 
 # list all backups (in json format): 
