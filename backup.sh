@@ -95,8 +95,8 @@ for backup_file in $backup_dir*tar.gz ; do
 
     filename=${backup_file##*/}
     echo "+ uploading $filename"
-    echo "$b2_command upload-file $bucket_name "$backup_file" `date +\%Y-\%m-\%d`/$filename"
-    $b2_command upload-file $bucket_name "$backup_file" "`date +\%Y-\%m-\%d`/$filename"
+    echo "$b2_command upload-file --noProgress $bucket_name "$backup_file" `date +\%Y-\%m-\%d`/$filename"
+    $b2_command upload-file --noProgress $bucket_name "$backup_file" "`date +\%Y-\%m-\%d`/$filename"
 
     if [ $? -eq 0 ]
     then
