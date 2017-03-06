@@ -112,16 +112,16 @@ done
 
 # identify old backups that need to be purged
 
-list_of_backups=`/usr/bin/mktemp` # /bin/mktemp on webfaction
-list_of_backups_to_delete=`/usr/bin/mktemp`
+list_of_backups=`/usr/bin/env mktemp`
+list_of_backups_to_delete=`/usr/bin/env mktemp`
 
 # list all backups (in json format): 
 echo "+retrieving backup list..."
-$b2_command list-file-names $bucket_name > $list_of_backups
+$b2_command list-file-names $bucket_name "" 4000 > $list_of_backups
 
 if [ $? -eq 0 ]
 then
-    echo "+ backup list retrieved"
+    echo "+ backup list retrieved: $list_of_backups"
 else
     echo "- Could not retrieve backup list" >&2
     notify_admins "$mail_recipient" "[$system_name] Could not retrieve backup list" "Could not retrieve backup list"
@@ -134,7 +134,7 @@ $python_command $delete_filter_script_path $list_of_backups > $list_of_backups_t
 
 if [ $? -eq 0 ]
 then
-    echo "+ backup list processed"
+    echo "+ backup list processed: $list_of_backups_to_delete"
 else
     echo "- Could not process backup list" >&2
     notify_admins "$mail_recipient" "[$system_name] Could not process backup list" "Could not process backup list"
